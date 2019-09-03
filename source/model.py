@@ -115,15 +115,119 @@ if __name__ =='__main__':
     parser = argparse.ArgumentParser()
 
     # hyperparameters sent by the client are passed as command-line arguments to the script.
+    parser.add_argument('--backbone', type=str, default='resnet18_v2')
     parser.add_argument('--epochs', type=int, default=10)
-    parser.add_argument('--batch-size', type=int, default=100)
-    parser.add_argument('--learning-rate', type=float, default=0.1)
+    parser.add_argument('--ttsplit', type=float, default=0.7)
+    parser.add_argument('--frames', type=int, default=10)
+    parser.add_argument('--downsample', type=int, default=2)
+    parser.add_argument('--batch', type=int, default=16)
+    parser.add_argument('--loadworkers', type=int, default=6)
+    parser.add_argument('--fc', type=int, default=16)
+    parser.add_argument('--lr', type=float, default=0.001)
+    parser.add_argument('--dropout', type=float, default=0.3)
 
     # input data and model directories
     parser.add_argument('--model-dir', type=str, default=os.environ['SM_MODEL_DIR'])
     parser.add_argument('--train', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
     parser.add_argument('--test', type=str, default=os.environ['SM_CHANNEL_TEST'])
+    parser.add_argument('--val', type=str, default=os.environ['SM_CHANNEL_VAL'])
 
     args, _ = parser.parse_known_args()
 
-    # ... load from args.train and args.test, train a model, write model to args.model_dir.
+    # INSTANCIATE DATA PIPELINE ----------------
+    framecount = args.frames
+
+    # datasets
+    trainset = ImageSeqDataset(downsample=args.downsample, framecount=framecount, metadata=args.train+'train_labels.csv')
+    testset = ImageSeqDataset(downsample=args.downsample, framecount=framecount, metadata=args.test+'test_labels.csv')
+    valset = ImageSeqDataset(downsample=args.downsample, framecount=framecount, metadata=args.val+'val_labels.csv')
+
+    # dataloaders
+    train_loader = gluon.data.DataLoader(
+        dataset=trainset,
+        batch_size=arg.batch,
+        shuffle=True,
+        num_workers=args.loadworkers)
+
+    val_loader = gluon.data.DataLoader(
+        dataset=valset,
+        batch_size=len(valset),
+        last_batch='rollover',
+        shuffle=False,
+        num_workers=args.loadworkers)
+
+    test_loader = gluon.data.DataLoader(
+        dataset=testset,
+        batch_size=len(testset),
+        last_batch='rollover',
+        shuffle=False,
+        num_workers=args.loadworkers)
+
+    from source.model import PoolingClassifier
+
+    net = PoolingClassifier(num_classes=10, backbone=args.backbone, ctx=mx.gpu(), fc_width=args.fc)
+
+    ctx = mx.gpu()
+
+    net.fc1.initialize(mx.init.Xavier(), ctx=ctx)
+    net.fc2.initialize(mx.init.Xavier(), ctx=ctx)
+    net.collect_params().reset_ctx(ctx)
+
+    net.summary(mx.nd.random.uniform(shape=(1, framecount, 3, 224, 224)).as_in_context(ctx))
+
+    trainer = gluon.Trainer(
+        params=net.collect_params(),
+        optimizer=mx.optimizer.create('adam', multi_precision=True, learning_rate=args.lr))
+
+    metric = mx.metric.Accuracy()
+    loss_function = gluon.loss.SoftmaxCrossEntropyLoss()
+
+
+    def perf(loader, net):
+
+        testmetric = mx.metric.Accuracy()
+        for inputs, labels in loader:
+            # Possibly copy inputs and labels to the GPU
+            inputs = inputs.astype('float16').as_in_context(ctx)
+            labels = labels.astype('float16').as_in_context(ctx)
+            testmetric.update(labels, net(inputs))
+
+        _, value = testmetric.get()
+        return value
+
+
+    net.cast('float16')
+
+    num_epochs = args.epochs
+
+    train_acc = []
+    val_acc = []
+
+    for epoch in range(num_epochs):
+        for inputs, labels in train_loader:
+            # Possibly copy inputs and labels to the GPU
+            inputs = inputs.astype('float16').as_in_context(ctx)
+            labels = labels.astype('float16').as_in_context(ctx)
+
+            with autograd.record():
+                outputs = net(inputs)
+                loss = loss_function(outputs, labels)
+
+            # Compute gradients by backpropagation and update the evaluation metric
+            loss.backward()
+            metric.update(labels, outputs)
+
+            # Update the parameters by stepping the trainer; the batch size
+            # is required to normalize the gradients by `1 / batch_size`.
+            trainer.step(batch_size=inputs.shape[0])
+
+        # Print the evaluation metric and reset it for the next epoch
+        name, acc = metric.get()
+        print('After {} epoch : {} = {}'.format(epoch + 1, name, acc))
+        train_acc.append(acc)
+
+        metric.reset()
+
+        val_perf = perf(val_loader, net)
+        print(val_perf)
+        val_acc.append(val_perf)
