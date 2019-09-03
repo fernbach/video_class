@@ -1,4 +1,5 @@
 # Data files and directories common in repo root
+*.zip
 datasets/
 data/
 data_augmented/
