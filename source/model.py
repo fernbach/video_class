@@ -28,7 +28,7 @@ class ImageSeqDataset(gluon.data.Dataset):
     Custom Dataset to handle the UTK image sequence dataset json file
     """
 
-    def __init__(self, metadata, folder='RGB', downsample=1, framecount=6):
+    def __init__(self, metadata, folder=args.rgb, downsample=1, framecount=6):
         """
         Parameters
         ---------
@@ -131,6 +131,7 @@ if __name__ =='__main__':
     parser.add_argument('--train', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
     parser.add_argument('--test', type=str, default=os.environ['SM_CHANNEL_TEST'])
     parser.add_argument('--val', type=str, default=os.environ['SM_CHANNEL_VAL'])
+    parser.add_argument('--rgb', type=str, default=os.environ['SM_CHANNEL_RGB'])
 
     args, _ = parser.parse_known_args()
 
