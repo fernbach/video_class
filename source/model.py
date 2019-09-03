@@ -127,11 +127,11 @@ if __name__ =='__main__':
     parser.add_argument('--dropout', type=float, default=0.3)
 
     # input data and model directories
-    parser.add_argument('--model-dir', type=str, default=os.environ['SM_MODEL_DIR'])
-    parser.add_argument('--train', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
-    parser.add_argument('--test', type=str, default=os.environ['SM_CHANNEL_TEST'])
-    parser.add_argument('--val', type=str, default=os.environ['SM_CHANNEL_VAL'])
-    parser.add_argument('--rgb', type=str, default=os.environ['SM_CHANNEL_RGB'])
+    parser.add_argument('--model-dir', type=str, default=os.environ.get('SM_MODEL_DIR'))
+    parser.add_argument('--train', type=str, default=os.environ.get('SM_CHANNEL_TRAIN'))
+    parser.add_argument('--test', type=str, default=os.environ.get('SM_CHANNEL_TEST'))
+    parser.add_argument('--val', type=str, default=os.environ.get('SM_CHANNEL_VAL'))
+    parser.add_argument('--rgb', type=str, default=os.environ.get('SM_CHANNEL_RGB'))
 
     args, _ = parser.parse_known_args()
 
