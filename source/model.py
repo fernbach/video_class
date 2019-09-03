@@ -28,7 +28,7 @@ class ImageSeqDataset(gluon.data.Dataset):
     Custom Dataset to handle the UTK image sequence dataset json file
     """
 
-    def __init__(self, metadata, folder=args.rgb, downsample=1, framecount=6):
+    def __init__(self, metadata, folder, downsample=1, framecount=6):
         """
         Parameters
         ---------
@@ -139,9 +139,9 @@ if __name__ =='__main__':
     framecount = args.frames
 
     # datasets
-    trainset = ImageSeqDataset(downsample=args.downsample, framecount=framecount, metadata=args.train+'/train_labels.csv')
-    testset = ImageSeqDataset(downsample=args.downsample, framecount=framecount, metadata=args.test+'/test_labels.csv')
-    valset = ImageSeqDataset(downsample=args.downsample, framecount=framecount, metadata=args.val+'/val_labels.csv')
+    trainset = ImageSeqDataset(folder=args.rgb,downsample=args.downsample, framecount=framecount, metadata=args.train+'/train_labels.csv')
+    testset = ImageSeqDataset(folder=args.rgb,downsample=args.downsample, framecount=framecount, metadata=args.test+'/test_labels.csv')
+    valset = ImageSeqDataset(folder=args.rgb,downsample=args.downsample, framecount=framecount, metadata=args.val+'/val_labels.csv')
 
     # dataloaders
     train_loader = gluon.data.DataLoader(
