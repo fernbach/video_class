@@ -163,8 +163,6 @@ if __name__ =='__main__':
         shuffle=False,
         num_workers=args.loadworkers)
 
-    from source.model import PoolingClassifier
-
     net = PoolingClassifier(num_classes=10, backbone=args.backbone, ctx=mx.gpu(), fc_width=args.fc)
 
     ctx = mx.gpu()
