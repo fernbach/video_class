@@ -138,9 +138,9 @@ if __name__ =='__main__':
     framecount = args.frames
 
     # datasets
-    trainset = ImageSeqDataset(downsample=args.downsample, framecount=framecount, metadata=args.train+'train_labels.csv')
-    testset = ImageSeqDataset(downsample=args.downsample, framecount=framecount, metadata=args.test+'test_labels.csv')
-    valset = ImageSeqDataset(downsample=args.downsample, framecount=framecount, metadata=args.val+'val_labels.csv')
+    trainset = ImageSeqDataset(downsample=args.downsample, framecount=framecount, metadata=args.train+'/train_labels.csv')
+    testset = ImageSeqDataset(downsample=args.downsample, framecount=framecount, metadata=args.test+'/test_labels.csv')
+    valset = ImageSeqDataset(downsample=args.downsample, framecount=framecount, metadata=args.val+'/val_labels.csv')
 
     # dataloaders
     train_loader = gluon.data.DataLoader(
