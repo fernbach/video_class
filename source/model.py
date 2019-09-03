@@ -145,7 +145,7 @@ if __name__ =='__main__':
     # dataloaders
     train_loader = gluon.data.DataLoader(
         dataset=trainset,
-        batch_size=arg.batch,
+        batch_size=args.batch,
         shuffle=True,
         num_workers=args.loadworkers)
 
