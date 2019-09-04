@@ -228,5 +228,5 @@ if __name__ =='__main__':
         metric.reset()
 
         val_perf = perf(val_loader, net)
-        print(val_perf)
+        print('Test: accuracy: {}'.format(val_perf))
         val_acc.append(val_perf)
