@@ -176,6 +176,7 @@ if __name__ =='__main__':
     ctx = mx.gpu()
 
     net.fc1.initialize(mx.init.Xavier(), ctx=ctx)
+    net.lstm.initialize(mx.init.Xavier(), ctx=ctx)
     net.fc2.initialize(mx.init.Xavier(), ctx=ctx)
     net.collect_params().reset_ctx(ctx)
 
