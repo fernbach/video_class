@@ -103,8 +103,8 @@ class PoolingClassifier(gluon.HybridBlock):
             self.fc2 = gluon.nn.Dense(self.num_classes)
 
     def hybrid_forward(self, F, x):
-        emb = F.concat(*[F.max(self.emb(ts), axis=0).expand_dims(axis=0) for ts in x], dim=0)
-
+        #emb = F.concat(*[F.max(self.emb(ts), axis=0).expand_dims(axis=0) for ts in x], dim=0)
+        emb = gluon.rnn.LSTM(100)
         e1 = self.fc1(emb)
         e1 = self.dropout_1(e1)
         Y = self.fc2(e1)
