@@ -133,12 +133,9 @@ if __name__ =='__main__':
     parser.add_argument('--dropout', type=float, default=0.3)
     parser.add_argument('--lstm_hs', type=float, default=100)
 
-    # input data and model directories
+    # input data and model directories∏
     parser.add_argument('--model-dir', type=str, default=os.environ.get('SM_MODEL_DIR'))
-    parser.add_argument('--train', type=str, default=os.environ.get('SM_CHANNEL_TRAIN'))
-    parser.add_argument('--test', type=str, default=os.environ.get('SM_CHANNEL_TEST'))
-    parser.add_argument('--val', type=str, default=os.environ.get('SM_CHANNEL_VAL'))
-    parser.add_argument('--rgb', type=str, default=os.environ.get('SM_CHANNEL_RGB'))
+    parser.add_argument('--training', type=str, default=os.environ.get('SM_CHANNEL_TRAINING'))
 
     args, _ = parser.parse_known_args()
 
@@ -146,9 +143,9 @@ if __name__ =='__main__':
     framecount = args.frames
 
     # datasets
-    trainset = ImageSeqDataset(folder=args.rgb,downsample=args.downsample, framecount=framecount, metadata=args.train+'/train_labels.csv')
-    testset = ImageSeqDataset(folder=args.rgb,downsample=args.downsample, framecount=framecount, metadata=args.test+'/test_labels.csv')
-    valset = ImageSeqDataset(folder=args.rgb,downsample=args.downsample, framecount=framecount, metadata=args.val+'/val_labels.csv')
+    trainset = ImageSeqDataset(folder=args.training+'/rgb',downsample=args.downsample, framecount=framecount, metadata=args.training+'/train_labels.csv')
+    testset = ImageSeqDataset(folder=args.training+'/rgb',downsample=args.downsample, framecount=framecount, metadata=args.training+'/test_labels.csv')
+    valset = ImageSeqDataset(folder=args.training+'/rgb',downsample=args.downsample, framecount=framecount, metadata=args.training+'/val_labels.csv')
 
     # dataloaders
     train_loader = gluon.data.DataLoader(
