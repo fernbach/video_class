@@ -99,15 +99,19 @@ class PoolingClassifier(gluon.HybridBlock):
 
         with self.name_scope():
             self.emb = models.get_model(name=self.backbone, ctx=ctx, pretrained=True).features
+            self.lstm = gluon.rnn.LSTM(self.lstm_hs)
             self.dropout_1 = gluon.nn.Dropout(self.dropout_p)
             self.fc1 = gluon.nn.Dense(self.fc_width, activation='relu')
             self.fc2 = gluon.nn.Dense(self.num_classes)
 
     def hybrid_forward(self, F, x):
         # emb = F.concat(*[F.max(self.emb(ts), axis=0).expand_dims(axis=0) for ts in x], dim=0)
-        emb = F.concat(*[self.emb(ts).expend_dims(axis=0) for ts in x], dim=0)
-        emb1 = gluon.rnn.LSTM(self.lstm_hs)(emb)
-        e1 = self.fc1(emb1)
+        embeddings = []
+        for ts in x:
+            embeddings.append(self.emb(ts).expand_dims(axis=0))
+        emb = F.concat(*embeddings, dim=0)
+        lstm = self.lstm(emb)
+        e1 = self.fc1(lstm)
         e1 = self.dropout_1(e1)
         Y = self.fc2(e1)
 
@@ -117,7 +121,7 @@ if __name__ =='__main__':
     parser = argparse.ArgumentParser()
 
     # hyperparameters sent by the client are passed as command-line arguments to the script.
-    parser.add_argument('--backbone', type=str, default='resnet18_v2')
+        parser.add_argument('--backbone', type=str, default='resnet18_v2')
     parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--ttsplit', type=float, default=0.7)
     parser.add_argument('--frames', type=int, default=10)
