@@ -122,10 +122,10 @@ if __name__ =='__main__':
 
     # hyperparameters sent by the client are passed as command-line arguments to the script.
     parser.add_argument('--backbone', type=str, default='resnet18_v2')
-    parser.add_argument('--epochs', type=int, default=10)
+    parser.add_argument('--epochs', type=int, default=15)
     parser.add_argument('--ttsplit', type=float, default=0.7)
     parser.add_argument('--frames', type=int, default=10)
-    parser.add_argument('--downsample', type=int, default=2)
+    parser.add_argument('--downsample', type=int, default=3)
     parser.add_argument('--batch', type=int, default=16)
     parser.add_argument('--loadworkers', type=int, default=6)
     parser.add_argument('--fc', type=int, default=16)
