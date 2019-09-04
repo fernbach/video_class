@@ -121,7 +121,7 @@ if __name__ =='__main__':
     parser = argparse.ArgumentParser()
 
     # hyperparameters sent by the client are passed as command-line arguments to the script.
-        parser.add_argument('--backbone', type=str, default='resnet18_v2')
+    parser.add_argument('--backbone', type=str, default='resnet18_v2')
     parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--ttsplit', type=float, default=0.7)
     parser.add_argument('--frames', type=int, default=10)
