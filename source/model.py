@@ -98,14 +98,14 @@ class PoolingClassifier(gluon.HybridBlock):
         self.lstm_hs = lstm_hs
 
         with self.name_scope():
-            self.emb = models.get_model(name=self.backbone, ctx=ctx, pretrained=True).features
+            # self.emb = models.get_model(name=self.backbone, ctx=ctx, pretrained=True).features
             self.dropout_1 = gluon.nn.Dropout(self.dropout_p)
             self.fc1 = gluon.nn.Dense(self.fc_width, activation='relu')
             self.fc2 = gluon.nn.Dense(self.num_classes)
 
     def hybrid_forward(self, F, x):
         #emb = F.concat(*[F.max(self.emb(ts), axis=0).expand_dims(axis=0) for ts in x], dim=0)
-        emb = gluon.rnn.LSTM(self.lstm_hs)
+        emb = gluon.rnn.LSTM(self.lstm_hs)(self.dense0)
         e1 = self.fc1(emb)
         e1 = self.dropout_1(e1)
         Y = self.fc2(e1)
@@ -166,7 +166,7 @@ if __name__ =='__main__':
         shuffle=False,
         num_workers=args.loadworkers)
 
-    net = PoolingClassifier(num_classes=10, backbone=args.backbone, ctx=mx.gpu(), fc_width=args.fc, lstm_hs=lstm_hs, dropout_p=args.dropout)
+    net = PoolingClassifier(num_classes=10, backbone=args.backbone, ctx=mx.gpu(), fc_width=args.fc, lstm_hs=args.lstm_hs, dropout_p=args.dropout)
 
     ctx = mx.gpu()
 
