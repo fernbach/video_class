@@ -88,13 +88,14 @@ class ImageSeqDataset(gluon.data.Dataset):
 class PoolingClassifier(gluon.HybridBlock):
     """this network runs a softmax on top of the average-pooled frame imagenet embeddings"""
 
-    def __init__(self, num_classes, backbone, fc_width, ctx, dropout_p=0.3):
+    def __init__(self, num_classes, backbone, fc_width, ctx, lstm_hs=100, dropout_p=0.3):
         super(PoolingClassifier, self).__init__()
 
         self.num_classes = num_classes
         self.backbone = backbone
         self.fc_width = fc_width
         self.dropout_p = dropout_p
+        self.lstm_hs = lstm_hs
 
         with self.name_scope():
             self.emb = models.get_model(name=self.backbone, ctx=ctx, pretrained=True).features
@@ -104,7 +105,7 @@ class PoolingClassifier(gluon.HybridBlock):
 
     def hybrid_forward(self, F, x):
         #emb = F.concat(*[F.max(self.emb(ts), axis=0).expand_dims(axis=0) for ts in x], dim=0)
-        emb = gluon.rnn.LSTM(100)
+        emb = gluon.rnn.LSTM(self.lstm_hs)
         e1 = self.fc1(emb)
         e1 = self.dropout_1(e1)
         Y = self.fc2(e1)
@@ -125,6 +126,7 @@ if __name__ =='__main__':
     parser.add_argument('--fc', type=int, default=16)
     parser.add_argument('--lr', type=float, default=0.001)
     parser.add_argument('--dropout', type=float, default=0.3)
+    parser.add_argument('--lstm_hs', type=float, default=100)
 
     # input data and model directories
     parser.add_argument('--model-dir', type=str, default=os.environ.get('SM_MODEL_DIR'))
@@ -164,7 +166,7 @@ if __name__ =='__main__':
         shuffle=False,
         num_workers=args.loadworkers)
 
-    net = PoolingClassifier(num_classes=10, backbone=args.backbone, ctx=mx.gpu(), fc_width=args.fc)
+    net = PoolingClassifier(num_classes=10, backbone=args.backbone, ctx=mx.gpu(), fc_width=args.fc, lstm_hs=lstm_hs, dropout_p=args.dropout)
 
     ctx = mx.gpu()
 
