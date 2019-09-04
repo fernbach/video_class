@@ -98,6 +98,7 @@ class PoolingClassifier(gluon.HybridBlock):
         self.lstm_hs = lstm_hs
 
         with self.name_scope():
+            self.dense0 = nn.Dense()
             # self.emb = models.get_model(name=self.backbone, ctx=ctx, pretrained=True).features
             self.dropout_1 = gluon.nn.Dropout(self.dropout_p)
             self.fc1 = gluon.nn.Dense(self.fc_width, activation='relu')
