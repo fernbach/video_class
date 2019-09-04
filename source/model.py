@@ -173,6 +173,7 @@ if __name__ =='__main__':
 
     net.fc1.initialize(mx.init.Xavier(), ctx=ctx)
     net.fc2.initialize(mx.init.Xavier(), ctx=ctx)
+    net.initialize(mx.init.Xavier(), ctx=ctx)
     net.collect_params().reset_ctx(ctx)
 
     net.summary(mx.nd.random.uniform(shape=(1, framecount, 3, 224, 224)).as_in_context(ctx))
