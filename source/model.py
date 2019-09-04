@@ -141,11 +141,11 @@ if __name__ =='__main__':
 
     # INSTANCIATE DATA PIPELINE ----------------
     framecount = args.frames
-
+∏∏
     # datasets
-    trainset = ImageSeqDataset(folder=args.training+'/rgb',downsample=args.downsample, framecount=framecount, metadata=args.training+'/train_labels.csv')
-    testset = ImageSeqDataset(folder=args.training+'/rgb',downsample=args.downsample, framecount=framecount, metadata=args.training+'/test_labels.csv')
-    valset = ImageSeqDataset(folder=args.training+'/rgb',downsample=args.downsample, framecount=framecount, metadata=args.training+'/val_labels.csv')
+    trainset = ImageSeqDataset(folder=args.training+'/RGB',downsample=args.downsample, framecount=framecount, metadata=args.training+'/train_labels.csv')
+    testset = ImageSeqDataset(folder=args.training+'/RGB',downsample=args.downsample, framecount=framecount, metadata=args.training+'/test_labels.csv')
+    valset = ImageSeqDataset(folder=args.training+'/RGB',downsample=args.downsample, framecount=framecount, metadata=args.training+'/val_labels.csv')
 
     # dataloaders
     train_loader = gluon.data.DataLoader(
